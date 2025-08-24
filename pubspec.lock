@@ -685,6 +685,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
+  r_icon_pro:
+    dependency: "direct main"
+    description:
+      name: r_icon_pro
+      sha256: c0e0019f887c669f54ade631cb56769d5636d00963b0ef2ff2188d7f2e249632
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   ready_widgets:
     dependency: "direct main"
     description:

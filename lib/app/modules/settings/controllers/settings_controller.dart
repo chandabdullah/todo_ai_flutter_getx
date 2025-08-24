@@ -1,23 +1,21 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../services/theme_service.dart';
 
 class SettingsController extends GetxController {
-  //TODO: Implement SettingsController
+  final ThemeService _themeService = ThemeService();
+  bool isDarkMode = false;
 
-  final count = 0.obs;
   @override
   void onInit() {
     super.onInit();
+    isDarkMode = _themeService.getThemeMode() == ThemeMode.dark;
   }
 
-  @override
-  void onReady() {
-    super.onReady();
+  void toggleDarkMode(bool value) {
+    isDarkMode = value;
+    _themeService.saveThemeMode(value);
+    Get.changeThemeMode(value ? ThemeMode.dark : ThemeMode.light);
+    update();
   }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }

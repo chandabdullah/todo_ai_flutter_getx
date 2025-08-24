@@ -16,6 +16,7 @@ dependencies:
   google_fonts: ^6.3.0
   font_awesome_flutter: ^10.9.1
   ready_widgets: ^0.0.1
+  r_icon_pro: ^1.0.3
 
   # State Management
   get: ^4.7.2

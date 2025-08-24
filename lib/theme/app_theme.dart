@@ -17,11 +17,12 @@ class AppTheme {
       onSecondary: Colors.white,
       onSurface: thirdColor,
     ),
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: Color(0xFFf9f9f9), 
     appBarTheme: const AppBarTheme(
-      backgroundColor: primaryColor,
-      foregroundColor: Colors.white,
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
       elevation: 0,
+      centerTitle: true,
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: primaryColor,
@@ -55,6 +56,7 @@ class AppTheme {
       backgroundColor: thirdColor,
       foregroundColor: Colors.white,
       elevation: 0,
+      centerTitle: true,
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: primaryColor,
