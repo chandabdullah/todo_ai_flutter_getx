@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/add_todo/bindings/add_todo_binding.dart';
+import '../modules/add_todo/views/add_todo_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/settings/bindings/settings_binding.dart';
@@ -22,6 +24,11 @@ class AppPages {
       name: _Paths.SETTINGS,
       page: () => const SettingsView(),
       binding: SettingsBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_TODO,
+      page: () => const AddTodoView(),
+      binding: AddTodoBinding(),
     ),
   ];
 }

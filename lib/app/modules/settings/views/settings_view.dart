@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:ready_widgets/ready_widgets.dart';
 import 'package:todo_ai/app/data/app_constants.dart';
 import '../controllers/settings_controller.dart';
@@ -35,10 +36,10 @@ class SettingsView extends GetView<SettingsController> {
               _settingsCard(theme, [
                 ListTile(
                   leading: ReadyAvatar(
-                    imageUrl: "https://avatars.githubusercontent.com/u/64844413?v=4",
+                    imageUrl:
+                        "https://avatars.githubusercontent.com/u/64844413?v=4",
                     size: 50,
                   ),
-
 
                   title: Text("Abdullah", style: theme.textTheme.bodyLarge),
                   subtitle: Text(
@@ -46,9 +47,11 @@ class SettingsView extends GetView<SettingsController> {
                     style: theme.textTheme.bodySmall,
                   ),
                   trailing: Icon(
-                    Icons.arrow_forward_ios,
+                    HugeIcons.strokeRoundedArrowRight02,
                     size: 16,
-                    color: theme.iconTheme.color?.withOpacity(0.6),
+                    color: theme.iconTheme.color?.withAlpha(
+                      (0.6 * 255).toInt(),
+                    ),
                   ),
                   onTap: () {},
                 ),
@@ -61,8 +64,10 @@ class SettingsView extends GetView<SettingsController> {
                 SwitchListTile(
                   title: Text("Dark Mode", style: theme.textTheme.bodyLarge),
                   secondary: Icon(
-                    Icons.dark_mode,
-                    color: theme.iconTheme.color?.withOpacity(0.8),
+                    HugeIcons.strokeRoundedDarkMode,
+                    color: theme.iconTheme.color?.withAlpha(
+                      (0.8 * 255).toInt(),
+                    ),
                   ),
                   value: controller.isDarkMode,
                   activeColor: theme.colorScheme.primary,
@@ -75,11 +80,11 @@ class SettingsView extends GetView<SettingsController> {
 
               // ⚙️ Preferences
               _settingsCard(theme, [
-                _settingsTile("Display", Icons.display_settings, theme, () {}),
+                _settingsTile("Display", HugeIcons.strokeRoundedComputer, theme, () {}),
                 _divider(theme),
                 _settingsTile(
                   "Notification",
-                  Icons.notifications_outlined,
+                  HugeIcons.strokeRoundedNotification02,
                   theme,
                   () {},
                 ),
@@ -92,12 +97,12 @@ class SettingsView extends GetView<SettingsController> {
               _settingsCard(theme, [
                 _settingsTile(
                   "Privacy",
-                  Icons.privacy_tip_outlined,
+                  HugeIcons.strokeRoundedPolicy,
                   theme,
                   () {},
                 ),
                 _divider(theme),
-                _settingsTile("Support", Icons.help_outline, theme, () {}),
+                _settingsTile("Support", HugeIcons.strokeRoundedHelpSquare, theme, () {}),
               ]),
 
               const SizedBox(height: 24),
@@ -105,7 +110,7 @@ class SettingsView extends GetView<SettingsController> {
               // 🚪 Logout
               _settingsCard(theme, [
                 ListTile(
-                  leading: const Icon(Icons.logout, color: Colors.red),
+                  leading: const Icon(HugeIcons.strokeRoundedLogout02, color: Colors.red),
                   title: const Text(
                     "Log Out",
                     style: TextStyle(color: Colors.red),
@@ -133,7 +138,7 @@ class SettingsView extends GetView<SettingsController> {
       child: Row(
         children: [
           Icon(
-            Icons.search,
+            HugeIcons.strokeRoundedSearch01,
             color: theme.iconTheme.color?.withAlpha((0.6 * 255).toInt()),
           ),
           const SizedBox(width: 8),
@@ -187,9 +192,9 @@ class SettingsView extends GetView<SettingsController> {
       leading: Icon(icon, color: theme.iconTheme.color),
       title: Text(title, style: theme.textTheme.bodyLarge),
       trailing: Icon(
-        Icons.arrow_forward_ios,
+        HugeIcons.strokeRoundedArrowRight02,
         size: 16,
-        color: theme.iconTheme.color?.withOpacity(0.6),
+        color: theme.iconTheme.color?.withAlpha((0.6 * 255).toInt()),
       ),
       onTap: onTap,
     );
@@ -200,7 +205,7 @@ class SettingsView extends GetView<SettingsController> {
     return Divider(
       height: 1,
       thickness: 0.5,
-      color: theme.dividerColor.withOpacity(0.5),
+      color: theme.dividerColor.withAlpha((0.5 * 255).toInt()),
     );
   }
 }

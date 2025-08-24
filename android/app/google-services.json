@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "573223127111",
+    "project_id": "todo-ai-app-2692d",
+    "storage_bucket": "todo-ai-app-2692d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573223127111:android:cd6db907f7e71a47d8c962",
+        "android_client_info": {
+          "package_name": "com.nls.todo.ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBm-bckJiN93C8Srtc8yXcGaDQ2uxVE-ig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

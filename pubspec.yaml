@@ -16,7 +16,7 @@ dependencies:
   google_fonts: ^6.3.0
   font_awesome_flutter: ^10.9.1
   ready_widgets: ^0.0.1
-  r_icon_pro: ^1.0.3
+  hugeicons: ^0.0.11
 
   # State Management
   get: ^4.7.2
@@ -42,6 +42,8 @@ dependencies:
   # Utils
   intl: ^0.20.2
   shared_preferences: ^2.5.3
+  connectivity_plus: ^6.1.5
+  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_test:
@@ -52,3 +54,13 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # Assets
+  assets:
+    # - .env.dev
+    # - .env.prod
+    - assets/
+    # - assets/images/
+    # - assets/icon/
+    # - assets/svg/
+    - assets/gifs/
