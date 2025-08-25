@@ -8,6 +8,7 @@ class SpeechService {
 
   Future<bool> initSpeech() async {
     _isAvailable = await _speech.initialize();
+    print('--_isAvailable : $_isAvailable');
     return _isAvailable;
   }
 

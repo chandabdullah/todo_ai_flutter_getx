@@ -6,6 +6,7 @@ import '../../../services/firebase_service.dart';
 import '../../../services/hive_service.dart';
 
 class HomeController extends GetxController {
+  bool isLoading = false;
   final FirebaseService _firebaseService = FirebaseService();
   final HiveService _hiveService = HiveService();
 
@@ -16,12 +17,16 @@ class HomeController extends GetxController {
     super.onInit();
     await _hiveService.init();
     loadTodos();
-    syncWithFirebase();
+    // syncWithFirebase();
   }
 
   /// Load from Hive always (single source of truth)
   Future<void> loadTodos() async {
+    isLoading = true;
+    update();
     todos.value = await _hiveService.getAllTodos();
+    isLoading = false;
+    update();
   }
 
   /// Add new todo

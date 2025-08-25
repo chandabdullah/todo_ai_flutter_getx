@@ -10,6 +10,8 @@ class AddTodoController extends GetxController {
   final dueTime = Rxn<TimeOfDay>();
   final priority = "Low".obs;
 
+  bool isListening = false;
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// Pick Due Date

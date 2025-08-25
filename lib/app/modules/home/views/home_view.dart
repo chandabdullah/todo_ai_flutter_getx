@@ -25,11 +25,32 @@ class HomeView extends GetView<HomeController> {
             ],
           ),
           body: Obx(() {
+            if (controller.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
             if (controller.todos.isEmpty) {
               return Center(
                 child: ReadyEmptyWidget(
-                  customIcon: Image.asset('assets/gifs/no result found.gif'),
+                  // customIcon: Image.asset('assets/gifs/no result found.gif'),
+                  customIcon: Icon(
+                    HugeIcons.strokeRoundedTaskAdd01,
+                    size: 100,
+                    color: theme.textTheme.bodyLarge?.color?.withAlpha(
+                      (0.5 * 255).toInt(),
+                    ),
+                  ),
                   title: "Add your first task!",
+                  additionalWidget: ReadyTextButton(
+                    size: ReadyButtonSize.small,
+                    text: "Add Task",
+                    onPress: () => Get.toNamed(Routes.ADD_TODO),
+                    borderColor: theme.textTheme.bodyLarge?.color,
+                    icon: HugeIcons.strokeRoundedAdd01,
+                    iconPosition: IconPosition.leading,
+                    alignment: Alignment.center,
+                    // backgroundColor: theme.colorScheme.primary,
+                    width: 120,
+                  ),
                 ),
               );
             }
@@ -41,7 +62,7 @@ class HomeView extends GetView<HomeController> {
                   title: Text(todo["title"] ?? ""),
                   subtitle: Text(todo["description"] ?? ""),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete),
+                    icon: const Icon(HugeIcons.strokeRoundedDelete03),
                     onPressed: () => controller.deleteTodo(todo["id"]),
                   ),
                   onTap: () {

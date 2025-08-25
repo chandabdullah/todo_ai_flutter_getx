@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:todo_ai/app/services/speech_service.dart';
 
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
@@ -25,6 +26,8 @@ void main() async {
 
   // Start SyncService (to handle offline → online sync automatically)
   await SyncService().init();
+
+  await SpeechService().initSpeech();
 
   runApp(const TodoApp());
 }
