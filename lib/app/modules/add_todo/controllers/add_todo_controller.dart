@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:todo_ai/app/services/openai_service.dart';
 
 class AddTodoController extends GetxController {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
+  TextEditingController dueDateController = TextEditingController();
 
-  final dueDate = Rxn<DateTime>();
-  final dueTime = Rxn<TimeOfDay>();
-  final priority = "Low".obs;
+  DateTime? dueDate;
+  TimeOfDay? dueTime;
+  String priority = "Low";
+
+  List<String> priorities = ["Low", "Medium", "High"];
 
   bool isListening = false;
 
@@ -22,16 +26,21 @@ class AddTodoController extends GetxController {
       firstDate: DateTime(2022),
       lastDate: DateTime(2100),
     );
-    if (picked != null) dueDate.value = picked;
+    if (picked != null) dueDate = picked;
   }
 
   /// Pick Due Time
   Future<void> pickDueTime() async {
     final picked = await showTimePicker(
       context: Get.context!,
-      initialTime: TimeOfDay.now(),
+      initialTime: dueTime ?? TimeOfDay.now(),
     );
-    if (picked != null) dueTime.value = picked;
+    if (picked != null) {
+      dueTime = picked;
+      dueDateController.text = formatTime(dueTime ?? TimeOfDay.now());
+    }
+
+    update();
   }
 
   /// Format Date
@@ -40,8 +49,19 @@ class AddTodoController extends GetxController {
   }
 
   /// Format Time
-  String formatTime(TimeOfDay time) {
-    return "${time.hour}:${time.minute.toString().padLeft(2, '0')}";
+  String formatTime(TimeOfDay time, {bool is24HourFormat = false}) {
+    if (is24HourFormat) {
+      // 24-hour format
+      final hour = time.hour.toString().padLeft(2, '0');
+      final minute = time.minute.toString().padLeft(2, '0');
+      return "$hour:$minute";
+    } else {
+      // 12-hour format with AM/PM
+      final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+      final minute = time.minute.toString().padLeft(2, '0');
+      final period = time.period == DayPeriod.am ? "AM" : "PM";
+      return "$hour:$minute $period";
+    }
   }
 
   /// Save Todo in Firebase
@@ -56,14 +76,22 @@ class AddTodoController extends GetxController {
     }
 
     try {
+      // final ai = OpenAIService();
+      // final aiDetails = await ai.generateTodoDetails(
+      //   titleController.text.trim(),
+      // );
+
+      // print(aiDetails["summary"]);
+      // print(aiDetails["category"]);
+
+      // return; // for testing AI only
+
       final todo = {
         "title": titleController.text.trim(),
         "description": descriptionController.text.trim(),
-        "priority": priority.value,
-        "dueDate": dueDate.value?.toIso8601String(),
-        "dueTime": dueTime.value == null
-            ? null
-            : "${dueTime.value!.hour}:${dueTime.value!.minute}",
+        "priority": priority,
+        "dueDate": dueDate?.toIso8601String(),
+        "dueTime": dueTime == null ? null : "${dueTime?.hour}:${dueTime?.minute}",
         "createdAt": DateTime.now().toIso8601String(),
         "isCompleted": false,
       };

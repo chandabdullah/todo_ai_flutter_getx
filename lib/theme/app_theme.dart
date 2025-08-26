@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:todo_ai/app/data/app_constants.dart';
 
 class AppTheme {
   static const Color primaryColor = Color(0xFF079DF5);
@@ -11,6 +12,16 @@ class AppTheme {
     fontFamily: GoogleFonts.arimo().fontFamily,
     brightness: Brightness.light,
     primaryColor: primaryColor,
+    inputDecorationTheme: InputDecorationTheme(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        borderSide: const BorderSide(color: primaryColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        borderSide: const BorderSide(color: primaryColor, width: 2),
+      ),
+    ),
     colorScheme: ColorScheme.light(
       primary: primaryColor,
       secondary: secondaryColor,
@@ -19,7 +30,7 @@ class AppTheme {
       onSecondary: Colors.white,
       onSurface: thirdColor,
     ),
-    scaffoldBackgroundColor: Color(0xFFf9f9f9), 
+    scaffoldBackgroundColor: Color(0xFFf9f9f9),
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,
       foregroundColor: Colors.black,

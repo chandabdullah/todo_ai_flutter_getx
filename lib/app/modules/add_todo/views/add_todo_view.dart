@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 import 'package:ready_widgets/ready_widgets.dart';
+import 'package:todo_ai/app/data/app_constants.dart';
 import 'package:todo_ai/app/services/speech_service.dart';
 import '../controllers/add_todo_controller.dart';
 
@@ -11,7 +13,15 @@ class AddTodoView extends GetView<AddTodoController> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final inputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(kBorderRadius),
+      borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
+    );
+
+    final focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(kBorderRadius),
+      borderSide: BorderSide(color: Colors.blue, width: 2),
+    );
 
     return GetBuilder<AddTodoController>(
       builder: (_) {
@@ -26,7 +36,7 @@ class AddTodoView extends GetView<AddTodoController> {
             ],
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(kPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -34,6 +44,7 @@ class AddTodoView extends GetView<AddTodoController> {
                 ReadyInput(
                   controller: controller.titleController,
                   label: "Task Title",
+                  autoFocus: true,
                   prefixIcon: Icon(HugeIcons.strokeRoundedTask01),
                   suffixIcon: IconButton(
                     onPressed: () async {
@@ -63,7 +74,7 @@ class AddTodoView extends GetView<AddTodoController> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const Gap(20),
 
                 // 📄 Description
                 ReadyInput(
@@ -73,61 +84,125 @@ class AddTodoView extends GetView<AddTodoController> {
                   label: "Description",
                   prefixIcon: Icon(HugeIcons.strokeRoundedEdit01),
                 ),
-                const SizedBox(height: 16),
+                const Gap(20),
 
                 // 📅 Date
-                Obx(
-                  () => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(HugeIcons.strokeRoundedCalendar01),
-                    title: Text(
-                      controller.dueDate.value == null
-                          ? "Select Due Date"
-                          : DateFormat(
-                              "MMM dd, yyyy",
-                            ).format(controller.dueDate.value!),
-                    ),
-                    trailing: const Icon(
-                      HugeIcons.strokeRoundedArrowRight01,
-                      size: 16,
-                    ),
-                    onTap: () => controller.pickDueDate(),
+                // Obx(
+                //   () => ListTile(
+                //     contentPadding: EdgeInsets.symmetric(
+                //       horizontal: kPadding / 2,
+                //     ),
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(kBorderRadius),
+                //       side: BorderSide(
+                //         color:
+                //             theme.inputDecorationTheme.outlineBorder?.color ??
+                //             Colors.grey,
+                //       ),
+                //     ),
+                //     leading: const Icon(HugeIcons.strokeRoundedCalendar01),
+                //     title: Text(
+                //       controller.dueDate.value == null
+                //           ? "Select Due Date"
+                //           : DateFormat(
+                //               "MMM dd, yyyy",
+                //             ).format(controller.dueDate.value!),
+                //     ),
+                //     trailing: const Icon(
+                //       HugeIcons.strokeRoundedArrowRight01,
+                //       size: 20,
+                //     ),
+                //     onTap: () => controller.pickDueDate(),
+                //   ),
+                // ),
+                ReadyInput(
+                  readOnly: true,
+                  onTap: () => controller.pickDueDate(),
+                  label: "Due Date",
+                  prefixIcon: Icon(HugeIcons.strokeRoundedCalendar01),
+                  hint: "Select Due Date",
+                  controller: TextEditingController(
+                    text: controller.dueDate == null
+                        ? ""
+                        : DateFormat(
+                            "MMM dd, yyyy",
+                          ).format(controller.dueDate!),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const Gap(20),
 
                 // ⏰ Time
-                Obx(
-                  () => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(HugeIcons.strokeRoundedClock01),
-                    title: Text(
-                      controller.dueTime.value == null
-                          ? "Select Time"
-                          : controller.formatTime(controller.dueTime.value!),
-                    ),
-                    trailing: const Icon(
-                      HugeIcons.strokeRoundedArrowRight01,
-                      size: 16,
-                    ),
-                    onTap: () => controller.pickDueTime(),
-                  ),
+                // Obx(
+                //   () => ListTile(
+                //     contentPadding: EdgeInsets.zero,
+                //     leading: const Icon(HugeIcons.strokeRoundedClock01),
+                //     title: Text(
+                //       controller.dueTime == null
+                //           ? "Select Time"
+                //           : controller.formatTime(controller.dueTime),
+                //     ),
+                //     trailing: const Icon(
+                //       HugeIcons.strokeRoundedArrowRight01,
+                //       size: 20,
+                //     ),
+                //     onTap: () => controller.pickDueTime(),
+                //   ),
+                // ),
+                ReadyInput(
+                  readOnly: true,
+                  onTap: () => controller.pickDueTime(),
+                  label: "Due Time",
+                  prefixIcon: Icon(HugeIcons.strokeRoundedClock01),
+                  hint: "Select Due Time",
+                  controller: controller.dueDateController,
                 ),
-                const SizedBox(height: 16),
+                const Gap(20),
 
                 // ⚡ Priority Dropdown
-                Obx(
-                  () => DropdownButtonFormField<String>(
-                    value: controller.priority.value,
-                    items: ["Low", "Medium", "High"]
-                        .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                        .toList(),
-                    onChanged: (val) =>
-                        controller.priority.value = val ?? "Low",
-                    decoration: const InputDecoration(
-                      labelText: "Priority",
-                      prefixIcon: Icon(HugeIcons.strokeRoundedFlag01),
+                DropdownButtonFormField<String>(
+                  value: controller.priority,
+                  selectedItemBuilder: (context) {
+                    return controller.priorities.map((p) => Text(p)).toList();
+                  },
+
+                  items: controller.priorities
+                      .map(
+                        (p) => DropdownMenuItem(
+                          value: p,
+                          child: Row(
+                            children: [
+                              Icon(
+                                HugeIcons.strokeRoundedFlag01,
+                                color: p == 'Low'
+                                    ? Colors.green
+                                    : p == 'Medium'
+                                    ? Colors.amber
+                                    : Colors.red,
+                              ),
+                              Gap(kSpacing),
+                              Text(p),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) {
+                    controller.priority = val ?? "Low";
+                    controller.update();
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Priority",
+                    prefixIcon: Icon(
+                      HugeIcons.strokeRoundedFlag01,
+                      color: controller.priority == 'Low'
+                          ? Colors.green
+                          : controller.priority == 'Medium'
+                          ? Colors.amber
+                          : Colors.red,
                     ),
+                    border: inputBorder,
+                    enabledBorder: inputBorder,
+                    focusedBorder: focusedBorder,
                   ),
                 ),
               ],

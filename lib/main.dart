@@ -10,9 +10,13 @@ import 'app/routes/app_pages.dart';
 import 'app/services/theme_service.dart';
 import 'app/services/hive_service.dart';
 import 'app/services/sync_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

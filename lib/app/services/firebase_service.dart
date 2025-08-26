@@ -1,24 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CollectionReference todosRef = FirebaseFirestore.instance.collection(
+    'todos',
+  );
 
   Future<void> addTodo(String id, Map<String, dynamic> todo) async {
-    await _firestore.collection("todos").doc(id).set(todo);
+    await todosRef.doc(id).set(todo); // ✅ overwrite instead of duplicate
   }
 
   Future<void> updateTodo(String id, Map<String, dynamic> todo) async {
-    await _firestore.collection("todos").doc(id).update(todo);
+    await todosRef.doc(id).update(todo);
   }
 
   Future<void> deleteTodo(String id) async {
-    await _firestore.collection("todos").doc(id).delete();
+    await todosRef.doc(id).delete();
   }
 
   Future<List<Map<String, dynamic>>> fetchTodos() async {
-    final snapshot = await _firestore.collection("todos").get();
+    final snapshot = await todosRef.get();
     return snapshot.docs.map((doc) {
-      return {"id": doc.id, ...doc.data()};
+      final data = doc.data() as Map<String, dynamic>;
+      data["id"] = doc.id; // ensure ID is included
+      return data;
     }).toList();
   }
 }

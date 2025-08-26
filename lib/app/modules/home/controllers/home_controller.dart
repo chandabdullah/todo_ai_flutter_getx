@@ -10,21 +10,23 @@ class HomeController extends GetxController {
   final FirebaseService _firebaseService = FirebaseService();
   final HiveService _hiveService = HiveService();
 
-  final todos = <Map<String, dynamic>>[].obs;
+  final List<Map<String, dynamic>> todos = [];
 
   @override
   void onInit() async {
     super.onInit();
     await _hiveService.init();
-    loadTodos();
-    // syncWithFirebase();
+    _hiveService.clearAll();
+    await loadTodos();
+    syncWithFirebase();
   }
 
   /// Load from Hive always (single source of truth)
   Future<void> loadTodos() async {
     isLoading = true;
     update();
-    todos.value = await _hiveService.getAllTodos();
+    todos.clear();
+    todos.addAll(await _hiveService.getAllTodos());
     isLoading = false;
     update();
   }
@@ -96,8 +98,27 @@ class HomeController extends GetxController {
     }
   }
 
+  /// Remove all todos (local + firebase)
+  Future<void> clearAllTodos() async {
+    // 1) Clear Hive (local storage)
+    await _hiveService.clearAll();
+    todos.clear();
+    update();
+
+    // 2) Clear Firebase if online
+    if (await _isOnline()) {
+      final firebaseTodos = await _firebaseService.fetchTodos();
+      for (var todo in firebaseTodos) {
+        await _firebaseService.deleteTodo(todo["id"]);
+      }
+    }
+
+    await loadTodos();
+  }
+
   Future<bool> _isOnline() async {
     final connectivity = await Connectivity().checkConnectivity();
-    return connectivity != ConnectivityResult.none;
+    print("--- connectivity: $connectivity");
+    return !connectivity.contains(ConnectivityResult.none);
   }
 }

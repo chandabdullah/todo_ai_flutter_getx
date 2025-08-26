@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 const String appName = "TODO AI";
 
-const kBorderRadius = 14.0;
-const kSpacing = 10.0;
-const kPadding = 18.0;
-const kHorizantalPadding = 18.0;
+const double kBorderRadius = 8.0;
+const double kSpacing = 10.0;
+const double kPadding = 18.0;
+const double kHorizantalPadding = 18.0;
 
 double kBottomPadding(BuildContext context) {
   return MediaQuery.of(context).padding.bottom;
