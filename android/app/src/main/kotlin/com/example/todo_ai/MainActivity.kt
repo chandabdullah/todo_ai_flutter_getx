@@ -1,4 +1,4 @@
-package com.nls.todo.ai
+package com.nls.nextdo
 
 import io.flutter.embedding.android.FlutterActivity
 
