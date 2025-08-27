@@ -16,7 +16,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env.prod"); // Load environment variables
+  } catch (e) {
+    // print(File('.env.prod').existsSync());
+    print('----------------------------'); // Print error if any
+    print('Error loading .env file: $e'); // Print error if any
+    print('----------------------------'); // Print error if any
+  }
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -31,7 +38,7 @@ void main() async {
   // Start SyncService (to handle offline → online sync automatically)
   await SyncService().init();
 
-  await SpeechService().initSpeech();
+  await SpeechService().init();
 
   runApp(const TodoApp());
 }

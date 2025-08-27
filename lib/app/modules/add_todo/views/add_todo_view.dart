@@ -5,7 +5,6 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 import 'package:ready_widgets/ready_widgets.dart';
 import 'package:todo_ai/app/data/app_constants.dart';
-import 'package:todo_ai/app/services/speech_service.dart';
 import '../controllers/add_todo_controller.dart';
 
 class AddTodoView extends GetView<AddTodoController> {
@@ -20,7 +19,7 @@ class AddTodoView extends GetView<AddTodoController> {
 
     final focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(kBorderRadius),
-      borderSide: BorderSide(color: Colors.blue, width: 2),
+      borderSide: const BorderSide(color: Colors.blue, width: 2),
     );
 
     return GetBuilder<AddTodoController>(
@@ -31,7 +30,7 @@ class AddTodoView extends GetView<AddTodoController> {
             actions: [
               IconButton(
                 icon: const Icon(HugeIcons.strokeRoundedCheckmarkSquare04),
-                onPressed: () => controller.saveTodo(),
+                onPressed: controller.saveTodo,
               ),
             ],
           ),
@@ -44,36 +43,48 @@ class AddTodoView extends GetView<AddTodoController> {
                 ReadyInput(
                   controller: controller.titleController,
                   label: "Task Title",
+                  readOnly:
+                      controller.isListening, // prevent typing while listening
                   autoFocus: true,
-                  prefixIcon: Icon(HugeIcons.strokeRoundedTask01),
+                  prefixIcon: controller.isListening
+                      ? const Icon(
+                          HugeIcons.strokeRoundedEar,
+                          // color: Colors.red,
+                        )
+                      : const Icon(HugeIcons.strokeRoundedTask01),
+                  hint: controller.isListening ? "Listening..." : null,
                   suffixIcon: IconButton(
-                    onPressed: () async {
-                      print(
-                        "controller.isListening: ${controller.isListening}",
-                      );
-                      if (!controller.isListening) {
-                        await SpeechService().initSpeech();
-                        SpeechService().startListening((text) {
-                          final currentText = controller.titleController.text;
-                          controller.titleController.text = currentText.isEmpty
-                              ? text
-                              : "$currentText $text";
-                        });
-                        controller.isListening = true;
-                        controller.update();
-                      } else {
-                        SpeechService().stopListening();
-                        controller.isListening = false;
-                        controller.update();
-                      }
-                    },
+                    onPressed: controller.toggleMic,
                     icon: Icon(
-                      !controller.isListening
-                          ? HugeIcons.strokeRoundedMic01
-                          : HugeIcons.strokeRoundedStop,
+                      controller.isListening
+                          ? HugeIcons
+                                .strokeRoundedMic01 // show mic icon when listening
+                          : HugeIcons
+                                .strokeRoundedMic01, // show mic-off when not listening
+                      color: controller.isListening ? Colors.red : Colors.grey,
                     ),
                   ),
+
+                  // Tap anywhere on suffix to toggle mic
+                  // onTapSuffix: controller.toggleMic,
                 ),
+
+                // if (controller.isListening) ...[
+                //   const Gap(8),
+                //   Row(
+                //     children: [
+                //       const Icon(Icons.hearing, color: Colors.red),
+                //       const SizedBox(width: 6),
+                //       Text(
+                //         "Listening...",
+                //         style: TextStyle(
+                //           color: Colors.red.shade700,
+                //           fontWeight: FontWeight.bold,
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ],
                 const Gap(20),
 
                 // 📄 Description
@@ -82,44 +93,16 @@ class AddTodoView extends GetView<AddTodoController> {
                   maxLines: 3,
                   textInputType: TextInputType.multiline,
                   label: "Description",
-                  prefixIcon: Icon(HugeIcons.strokeRoundedEdit01),
+                  prefixIcon: const Icon(HugeIcons.strokeRoundedEdit01),
                 ),
                 const Gap(20),
 
                 // 📅 Date
-                // Obx(
-                //   () => ListTile(
-                //     contentPadding: EdgeInsets.symmetric(
-                //       horizontal: kPadding / 2,
-                //     ),
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(kBorderRadius),
-                //       side: BorderSide(
-                //         color:
-                //             theme.inputDecorationTheme.outlineBorder?.color ??
-                //             Colors.grey,
-                //       ),
-                //     ),
-                //     leading: const Icon(HugeIcons.strokeRoundedCalendar01),
-                //     title: Text(
-                //       controller.dueDate.value == null
-                //           ? "Select Due Date"
-                //           : DateFormat(
-                //               "MMM dd, yyyy",
-                //             ).format(controller.dueDate.value!),
-                //     ),
-                //     trailing: const Icon(
-                //       HugeIcons.strokeRoundedArrowRight01,
-                //       size: 20,
-                //     ),
-                //     onTap: () => controller.pickDueDate(),
-                //   ),
-                // ),
                 ReadyInput(
                   readOnly: true,
-                  onTap: () => controller.pickDueDate(),
+                  onTap: controller.pickDueDate,
                   label: "Due Date",
-                  prefixIcon: Icon(HugeIcons.strokeRoundedCalendar01),
+                  prefixIcon: const Icon(HugeIcons.strokeRoundedCalendar01),
                   hint: "Select Due Date",
                   controller: TextEditingController(
                     text: controller.dueDate == null
@@ -132,27 +115,11 @@ class AddTodoView extends GetView<AddTodoController> {
                 const Gap(20),
 
                 // ⏰ Time
-                // Obx(
-                //   () => ListTile(
-                //     contentPadding: EdgeInsets.zero,
-                //     leading: const Icon(HugeIcons.strokeRoundedClock01),
-                //     title: Text(
-                //       controller.dueTime == null
-                //           ? "Select Time"
-                //           : controller.formatTime(controller.dueTime),
-                //     ),
-                //     trailing: const Icon(
-                //       HugeIcons.strokeRoundedArrowRight01,
-                //       size: 20,
-                //     ),
-                //     onTap: () => controller.pickDueTime(),
-                //   ),
-                // ),
                 ReadyInput(
                   readOnly: true,
-                  onTap: () => controller.pickDueTime(),
+                  onTap: controller.pickDueTime,
                   label: "Due Time",
-                  prefixIcon: Icon(HugeIcons.strokeRoundedClock01),
+                  prefixIcon: const Icon(HugeIcons.strokeRoundedClock01),
                   hint: "Select Due Time",
                   controller: controller.dueDateController,
                 ),
@@ -161,10 +128,8 @@ class AddTodoView extends GetView<AddTodoController> {
                 // ⚡ Priority Dropdown
                 DropdownButtonFormField<String>(
                   value: controller.priority,
-                  selectedItemBuilder: (context) {
-                    return controller.priorities.map((p) => Text(p)).toList();
-                  },
-
+                  selectedItemBuilder: (context) =>
+                      controller.priorities.map((p) => Text(p)).toList(),
                   items: controller.priorities
                       .map(
                         (p) => DropdownMenuItem(
@@ -179,7 +144,7 @@ class AddTodoView extends GetView<AddTodoController> {
                                     ? Colors.amber
                                     : Colors.red,
                               ),
-                              Gap(kSpacing),
+                              const Gap(kSpacing),
                               Text(p),
                             ],
                           ),

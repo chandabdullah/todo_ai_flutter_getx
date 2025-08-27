@@ -1,31 +1,38 @@
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
 
 class SpeechService {
   final SpeechToText _speech = SpeechToText();
+  bool _ready = false;
 
-  bool _isAvailable = false;
-  bool get isAvailable => _isAvailable;
-
-  Future<bool> initSpeech() async {
-    _isAvailable = await _speech.initialize();
-    print('--_isAvailable : $_isAvailable');
-    return _isAvailable;
+  /// Initialize once (e.g. when the page opens)
+  Future<bool> init() async {
+    _ready = await _speech.initialize(
+      onStatus: (status) => print('=-=- Speech status: $status'),
+      onError: (error) => print('=-=- Speech error: $error'),
+    );
+    return _ready;
   }
 
-  Future<void> startListening(Function(String text) onResult) async {
-    if (_isAvailable) {
-      await _speech.listen(
-        onResult: (result) {
-          onResult(result.recognizedWords);
-        },
-        listenFor: const Duration(seconds: 30),
-        pauseFor: const Duration(seconds: 5),
-        localeId: "en_US",
-      );
+  Future<void> start(void Function(String text) onText) async {
+    if (!_ready) {
+      // make sure init() was called
+      await init();
+      if (!_ready) return;
     }
+    await _speech.listen(
+      listenOptions: SpeechListenOptions(
+        listenMode: ListenMode.dictation,
+        partialResults: true,
+      ),
+      localeId: 'en_US',
+      onResult: (SpeechRecognitionResult r) {
+        onText(r.recognizedWords);
+      },
+    );
   }
 
-  Future<void> stopListening() async {
+  Future<void> stop() async {
     await _speech.stop();
   }
 }

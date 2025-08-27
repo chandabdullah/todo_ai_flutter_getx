@@ -50,6 +50,7 @@ dependencies:
   connectivity_plus: ^6.1.5
   uuid: ^4.5.1
   gap: ^3.0.1
+  google_generative_ai: ^0.4.7
 
 dev_dependencies:
   flutter_test:
@@ -63,8 +64,8 @@ flutter:
 
   # Assets
   assets:
-    - .env
-    # - .env.prod
+    # - .env
+    - .env.prod
     - assets/
     - assets/logo/
     # - assets/images/
