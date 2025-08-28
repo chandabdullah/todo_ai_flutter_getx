@@ -35,6 +35,7 @@ class HiveService {
 
   /// Delete todo
   Future<void> deleteTodo(String id) async {
+    print('--id: $id');
     await _todoBox.delete(id);
   }
 

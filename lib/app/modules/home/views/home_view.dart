@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -27,13 +28,15 @@ class HomeView extends GetView<HomeController> {
           body: controller.isLoading
               ? const Center(child: CircularProgressIndicator())
               : controller.todos.isEmpty
-              ? Center(child: Text("No tasks yet"))
+              ? const Center(child: Text("No tasks yet"))
               : RefreshIndicator(
                   onRefresh: () async {
                     await controller.syncWithFirebase();
                   },
                   child: ListView(
                     children: [
+                      // 🔴 Overdue
+                      _buildOverdueSection(controller.todos, controller, theme),
                       _buildSection(
                         "Today",
                         DateTime.now(),
@@ -48,13 +51,100 @@ class HomeView extends GetView<HomeController> {
                         controller,
                         theme,
                       ),
+
+                      // 🔥 Dynamic Upcoming Days
+                      ..._buildUpcomingSections(
+                        controller.todos,
+                        controller,
+                        theme,
+                      ),
                     ],
                   ),
                 ),
+
           floatingActionButton: _buildFabMenu(controller),
         );
       },
     );
+  }
+
+  Widget _buildOverdueSection(
+    List<Map<String, dynamic>> todos,
+    HomeController controller,
+    ThemeData theme,
+  ) {
+    final today = DateTime.now();
+    final overdueTodos =
+        todos.where((t) {
+          final dueDate = t["dueDate"] != null
+              ? DateTime.tryParse(t["dueDate"].toString())
+              : null;
+          return dueDate != null &&
+              dueDate.isBefore(DateTime(today.year, today.month, today.day));
+        }).toList()..sort((a, b) {
+          final aDate = DateTime.tryParse(a["dueDate"] ?? "") ?? DateTime.now();
+          final bDate = DateTime.tryParse(b["dueDate"] ?? "") ?? DateTime.now();
+          return aDate.compareTo(bDate);
+        });
+
+    if (overdueTodos.isEmpty) return const SizedBox();
+
+    return _buildSection(
+      "Overdue",
+      today.subtract(const Duration(days: 1)),
+      overdueTodos,
+      controller,
+      theme,
+    );
+  }
+
+  List<Widget> _buildUpcomingSections(
+    List<Map<String, dynamic>> todos,
+    HomeController controller,
+    ThemeData theme,
+  ) {
+    // Collect all dueDates
+    final dates = todos
+        .map(
+          (t) => t["dueDate"] != null
+              ? DateTime.tryParse(t["dueDate"].toString())
+              : null,
+        )
+        .whereType<DateTime>()
+        .toList();
+
+    if (dates.isEmpty) return [];
+
+    // Keep only future dates (after tomorrow)
+    final today = DateTime.now();
+    final tomorrow = today.add(const Duration(days: 1));
+
+    final upcomingDates =
+        dates
+            .where(
+              (d) => d.isAfter(
+                DateTime(tomorrow.year, tomorrow.month, tomorrow.day),
+              ),
+            )
+            .map(
+              (d) => DateTime(d.year, d.month, d.day),
+            ) // normalize to remove time
+            .toSet()
+            .toList()
+          ..sort();
+
+    // Build sections for each unique upcoming date
+    return upcomingDates
+        .map(
+          (date) => _buildSection(
+            DateFormat("EEEE").format(date), // e.g. "Wednesday"
+            date,
+            todos,
+            controller,
+            theme,
+          ),
+        )
+        .toList();
   }
 
   Widget _buildSection(
@@ -118,56 +208,94 @@ class HomeView extends GetView<HomeController> {
         // Tasks
         ...sectionTodos.map((todo) {
           final isCompleted = todo["isCompleted"] ?? false;
+          // Parse dueDate
           final dueDate = todo["dueDate"] != null
               ? DateTime.tryParse(todo["dueDate"].toString())
               : null;
-          final formattedTime = dueDate != null
-              ? DateFormat("HH:mm").format(dueDate)
-              : "--:--";
+
+          // If you already have dueTime as hh:mm string, use it directly
+          String formattedTime = "--:--";
+          print('todo["dueTime"]: ${todo["dueTime"]}');
+          if (todo["dueTime"] != null &&
+              todo["dueTime"].toString().isNotEmpty) {
+            formattedTime = todo["dueTime"]; // already "HH:mm"
+          } else if (dueDate != null) {
+            formattedTime = DateFormat("HH:mm").format(dueDate);
+          }
 
           return Column(
             children: [
-              ListTile(
-                leading: Text(
-                  formattedTime,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+              Slidable(
+                key: ValueKey(todo["id"]),
+                endActionPane: ActionPane(
+                  motion: const DrawerMotion(),
+                  extentRatio: 0.5, // how much space actions take
+                  children: [
+                    SlidableAction(
+                      onPressed: (context) {
+                        Get.toNamed(Routes.ADD_TODO, arguments: {"todo": todo});
+                      },
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      icon: Icons.edit,
+                      label: 'Edit',
+                    ),
+                    SlidableAction(
+                      onPressed: (context) {
+                        // 🔴 Delete
+                        controller.deleteTodo(todo["id"]);
+                      },
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                      label: 'Delete',
+                    ),
+                  ],
                 ),
-                title: Text(
-                  todo["title"] ?? "",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    decoration: isCompleted ? TextDecoration.lineThrough : null,
-                    color: isCompleted ? Colors.grey : null,
+                child: ListTile(
+                  leading: Text(
+                    formattedTime,
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  title: Text(
+                    todo["title"] ?? "",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      decoration: isCompleted
+                          ? TextDecoration.lineThrough
+                          : null,
+                      color: isCompleted ? Colors.grey : null,
+                    ),
+                  ),
+                  subtitle:
+                      todo["description"] != null &&
+                          todo["description"].toString().isNotEmpty
+                      ? Text(
+                          todo["description"],
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isCompleted ? Colors.grey : theme.hintColor,
+                            decoration: isCompleted
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        )
+                      : null,
+                  trailing: Checkbox(
+                    value: isCompleted,
+                    onChanged: (value) {
+                      controller.updateTodo(todo["id"], {
+                        ...todo,
+                        "isCompleted": value ?? false,
+                      });
+                    },
                   ),
                 ),
-                subtitle:
-                    todo["description"] != null &&
-                        todo["description"].toString().isNotEmpty
-                    ? Text(
-                        todo["description"],
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isCompleted ? Colors.grey : theme.hintColor,
-                          decoration: isCompleted
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                      )
-                    : null,
-                trailing: Checkbox(
-                  value: isCompleted,
-                  onChanged: (value) {
-                    controller.updateTodo(todo["id"], {
-                      ...todo,
-                      "isCompleted": value ?? false,
-                    });
-                  },
-                ),
               ),
-              const Divider(indent: 70, thickness: 0.5), // align with text
             ],
           );
-        }).toList(),
+        }),
+        const Divider(indent: 70, thickness: 0.5), // align with text
       ],
     );
   }
@@ -181,10 +309,7 @@ class HomeView extends GetView<HomeController> {
           mini: true,
           onPressed: () {
             // controller.clearAllTodos();
-            Get.toNamed(
-              Routes.ADD_TODO,
-              arguments: {'startListening': true},
-            );
+            Get.toNamed(Routes.ADD_TODO, arguments: {'startListening': true});
           },
           child: const Icon(HugeIcons.strokeRoundedMic01),
         ),
